@@ -79,22 +79,6 @@ class UserController {
         .json({ status: false, error: "Internal server error" });
     }
   }
-
-   async getAlluser(req, res) {
-      try {
-        const alluser = await User.find({});
-  
-        if (!alluser) {
-          return res.status(400).json({ message: "No User found." });
-        }
-  
-        res.status(200).json({ message: "All User", data: alluser });
-      } catch (e) {
-        res
-          .status(500)
-          .json({ message: "Failed to get all user - " + e.message });
-      }
-    }
 }
 
 module.exports = new UserController();

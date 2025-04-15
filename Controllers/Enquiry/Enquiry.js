@@ -47,7 +47,8 @@ class enquiryController {
         time,
         selectbody,
         distance,
-        phoneNumber
+        phoneNumbr,
+        status,
       } = req.body;
 
       // if (
@@ -58,7 +59,7 @@ class enquiryController {
       //   !date ||
       //   !time ||
       //   !selectbody ||
-      //   !phoneNumber
+      //   !phoneNumbr
       // ) {
       //   return res.status(400).json({ error: "Missing required fields" });
       // }
@@ -72,7 +73,8 @@ class enquiryController {
         time,
         selectbody,
         distance,
-        phoneNumber
+        phoneNumbr,
+        status,
       });
 
       await newEnquiry.save();
@@ -103,38 +105,67 @@ class enquiryController {
     }
   }
 
-  //   async updateenquiry(req, res) {
-  //     try {
-  //       const id = req.params.id;
-  //       const { courtname } = req.body;
+  async getAllFalseEnquiries(req, res) {
+    try {
+      const falseEnquiries = await EnquiryModel.find({ status: false });
 
-  //       let courtupdate = await EnquiryModel.findOne({ _id: id });
-  //       if (!courtupdate) {
-  //         return res.status(404).json({
-  //           status: 404,
-  //           error: "Id not found",
-  //         });
-  //       }
+      if (!falseEnquiries.length) {
+        return res.status(404).json({ message: "No pending enquiries found." });
+      }
 
-  //       await EnquiryModel.findOneAndUpdate(
-  //         { _id: courtId },
-  //         {
-  //           courtname,
-  //         },
-  //         {
-  //           new: true,
-  //         }
-  //       );
-  //       console.log("courtupdate", courtupdate);
-  //       res.status(200).json({
-  //         status: true,
-  //         success: "Updated",
-  //         data: courtupdate,
-  //       });
-  //     } catch (error) {
-  //       res.status(500).json({ error: error.message });
-  //     }
-  //   }
+      res
+        .status(200)
+        .json({ message: "Pending Enquiries", data: falseEnquiries });
+    } catch (e) {
+      res
+        .status(500)
+        .json({ message: "Failed to get pending enquiries - " + e.message });
+    }
+  }
+
+  async getAllTrueEnquiries(req, res) {
+    try {
+      const trueEnquiries = await EnquiryModel.find({ status: true });
+
+      if (!trueEnquiries.length) {
+        return res
+          .status(404)
+          .json({ message: "No confirmed enquiries found." });
+      }
+
+      res
+        .status(200)
+        .json({ message: "Confirmed Enquiries", data: trueEnquiries });
+    } catch (e) {
+      res
+        .status(500)
+        .json({ message: "Failed to get confirmed enquiries - " + e.message });
+    }
+  }
+
+  async updateEnquiryStatus(req, res) {
+    try {
+      const { id } = req.params;
+
+      const updated = await EnquiryModel.findByIdAndUpdate(
+        id,
+        { status: true },
+        { new: true }
+      );
+
+      if (!updated) {
+        return res.status(404).json({ error: "Enquiry not found" });
+      }
+
+      return res.status(200).json({
+        message: "Status updated to true",
+        data: updated,
+      });
+    } catch (error) {
+      console.error("Error updating enquiry status:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
 
   async deleteenquiry(req, res) {
     try {
